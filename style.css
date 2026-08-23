@@ -267,6 +267,42 @@ input#amount-input:focus {
 
 /* timing */
 
+.period-select {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.period-btn {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.period-btn:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.period-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.period-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
 .verdict {
   display: inline-flex;
   align-items: center;

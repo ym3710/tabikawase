@@ -1,5 +1,12 @@
 const API_BASE = "https://api.frankfurter.dev/v1";
-const HISTORY_DAYS = 90;
+
+const PERIODS = [
+  { days: 90, label: "90日" },
+  { days: 365, label: "1年" },
+  { days: 1095, label: "3年" },
+  { days: 1825, label: "5年" },
+  { days: 3650, label: "10年" },
+];
 
 // 5-tier rating based on where today's rate ranks among the last 90 days
 // (percentile = share of days that were MORE expensive than today, i.e. how "cheap" today is)
@@ -44,14 +51,22 @@ const el = {
   chartStatus: document.getElementById("chart-status"),
   canvas: document.getElementById("rate-chart"),
   staleNote: document.getElementById("stale-note"),
+  periodSelect: document.getElementById("period-select"),
+  statAverageLabel: document.getElementById("stat-average-label"),
+  chartHeadingPeriod: document.getElementById("chart-heading-period"),
 };
 
 let state = {
   currency: "USD",
+  periodDays: 90,
   latestRate: null, // JPY per 1 unit of foreign currency
   latestDate: null,
   history: [], // [{date, rate}]
 };
+
+function periodLabel(days) {
+  return PERIODS.find((p) => p.days === days)?.label ?? `${days}日`;
+}
 
 function populateCurrencySelect() {
   el.currencySelect.innerHTML = CURRENCIES.map(
@@ -73,21 +88,26 @@ async function fetchJson(url) {
   return res.json();
 }
 
+let requestSeq = 0;
+
 async function loadCurrency(code) {
   state.currency = code;
   el.rateLine.textContent = "レート取得中…";
   el.chartStatus.textContent = "";
   setVerdict(null, null, "判定中…");
 
+  const thisRequest = ++requestSeq;
   const today = new Date();
   const start = new Date(today);
-  start.setDate(start.getDate() - HISTORY_DAYS);
+  start.setDate(start.getDate() - state.periodDays);
 
   try {
     const [latest, history] = await Promise.all([
       fetchJson(`${API_BASE}/latest?base=${code}&symbols=JPY`),
       fetchJson(`${API_BASE}/${formatDate(start)}..${formatDate(today)}?base=${code}&symbols=JPY`),
     ]);
+
+    if (thisRequest !== requestSeq) return; // a newer request has since started
 
     state.latestRate = latest.rates.JPY;
     state.latestDate = latest.date;
@@ -97,6 +117,7 @@ async function loadCurrency(code) {
 
     renderAll();
   } catch (err) {
+    if (thisRequest !== requestSeq) return;
     el.rateLine.textContent = "レートの取得に失敗しました。時間をおいて再読み込みしてください。";
     el.chartStatus.textContent = "グラフを表示できませんでした。";
     el.staleNote.hidden = true;
@@ -138,6 +159,9 @@ function setVerdict(tierKey, stars, text) {
 function renderTiming() {
   if (state.history.length === 0 || state.latestRate === null) return;
 
+  const label = periodLabel(state.periodDays);
+  el.statAverageLabel.textContent = `${label}平均`;
+
   const rates = state.history.map((h) => h.rate);
   const avg = rates.reduce((a, b) => a + b, 0) / rates.length;
   const diffPct = ((state.latestRate - avg) / avg) * 100;
@@ -146,15 +170,15 @@ function renderTiming() {
   el.statAverage.textContent = `${avg.toFixed(2)} 円`;
   el.statDiff.textContent = `${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)} %`;
 
-  // cheapness percentile: share of the last 90 days that were MORE expensive than today
+  // cheapness percentile: share of the period's days that were MORE expensive than today
   const moreExpensiveDays = rates.filter((r) => r > state.latestRate).length;
   const cheapPercentile = (moreExpensiveDays / rates.length) * 100;
 
   const tier = TIERS.find((t) => cheapPercentile >= t.min);
   setVerdict(tier.key, tier.stars, tier.label);
   el.timingNote.textContent =
-    `直近90日のうち${Math.round(cheapPercentile)}%の日より、今日の${state.currency}は円換算で安く両替できます` +
-    `（90日平均との差: ${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)}%）。`;
+    `直近${label}のうち${Math.round(cheapPercentile)}%の日より、今日の${state.currency}は円換算で安く両替できます` +
+    `（${label}平均との差: ${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)}%）。`;
 }
 
 function renderChart() {
@@ -171,6 +195,8 @@ function renderChart() {
   const mutedColor = styles.getPropertyValue("--muted").trim() || "#5b6472";
   const borderColor = styles.getPropertyValue("--border").trim() || "#dcd8cd";
   const accentColor = styles.getPropertyValue("--accent").trim() || "#b9812f";
+
+  el.chartHeadingPeriod.textContent = `直近${periodLabel(state.periodDays)}`;
 
   if (state.history.length < 2) {
     el.chartStatus.textContent = "この通貨の履歴データが十分にありません。";
@@ -245,11 +271,27 @@ function renderChart() {
   ctx.textAlign = "left";
 }
 
+function setActivePeriodButton() {
+  el.periodSelect.querySelectorAll(".period-btn").forEach((btn) => {
+    btn.classList.toggle("is-active", Number(btn.dataset.days) === state.periodDays);
+  });
+}
+
 el.currencySelect.addEventListener("change", (e) => loadCurrency(e.target.value));
 el.amountInput.addEventListener("input", renderConversion);
+el.periodSelect.addEventListener("click", (e) => {
+  const btn = e.target.closest(".period-btn");
+  if (!btn) return;
+  const days = Number(btn.dataset.days);
+  if (days === state.periodDays) return;
+  state.periodDays = days;
+  setActivePeriodButton();
+  loadCurrency(state.currency);
+});
 window.addEventListener("resize", () => {
   if (state.history.length) renderChart();
 });
 
 populateCurrencySelect();
+setActivePeriodButton();
 loadCurrency(state.currency);

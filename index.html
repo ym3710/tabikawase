@@ -59,6 +59,14 @@
   <section class="panel timing" aria-labelledby="timing-heading">
     <h2 id="timing-heading" class="panel-title">両替タイミングの目安</h2>
 
+    <div class="period-select" id="period-select" role="group" aria-label="比較する期間">
+      <button type="button" class="period-btn" data-days="90">90日</button>
+      <button type="button" class="period-btn" data-days="365">1年</button>
+      <button type="button" class="period-btn" data-days="1095">3年</button>
+      <button type="button" class="period-btn" data-days="1825">5年</button>
+      <button type="button" class="period-btn" data-days="3650">10年</button>
+    </div>
+
     <div class="timing-body">
       <div class="verdict" id="verdict-badge">
         <span class="verdict-stars" id="verdict-stars" aria-hidden="true"></span>
@@ -72,7 +80,7 @@
           <dd id="stat-current">–</dd>
         </div>
         <div class="stat">
-          <dt>90日平均</dt>
+          <dt id="stat-average-label">90日平均</dt>
           <dd id="stat-average">–</dd>
         </div>
         <div class="stat">
@@ -84,7 +92,7 @@
   </section>
 
   <section class="panel chart-panel" aria-labelledby="chart-heading">
-    <h2 id="chart-heading" class="panel-title">直近90日の推移</h2>
+    <h2 id="chart-heading" class="panel-title"><span id="chart-heading-period">直近90日</span>の推移</h2>
     <p class="chart-caption">グラフが下にあるほど、その通貨は円で見て「安く」買えていた時期です。</p>
     <div class="chart-wrap">
       <canvas id="rate-chart" width="800" height="320" role="img" aria-label="為替レートの90日間推移グラフ"></canvas>
