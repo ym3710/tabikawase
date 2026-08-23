@@ -21,7 +21,6 @@
   --board-bg: #0f1c33;
   --board-digit: #f2c265;
   --board-digit-dim: rgba(242, 194, 101, 0.55);
-  --board-line: rgba(242, 194, 101, 0.14);
   --font-display: "Fraunces", Georgia, "Hiragino Mincho ProN", serif;
   --font-body: "Work Sans", "Hiragino Sans", "Yu Gothic", sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
@@ -51,7 +50,6 @@
     --board-bg: #070d1a;
     --board-digit: #ffcf6e;
     --board-digit-dim: rgba(255, 207, 110, 0.5);
-    --board-line: rgba(255, 207, 110, 0.12);
   }
 }
 
@@ -78,7 +76,6 @@
   --board-bg: #070d1a;
   --board-digit: #ffcf6e;
   --board-digit-dim: rgba(255, 207, 110, 0.5);
-  --board-line: rgba(255, 207, 110, 0.12);
 }
 
 * { box-sizing: border-box; }
@@ -214,13 +211,6 @@ input#amount-input:focus {
   background: var(--board-bg);
   border-radius: 8px;
   padding: 26px 24px;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--board-line) 0,
-    var(--board-line) 1px,
-    transparent 1px,
-    transparent 34px
-  );
 }
 
 .board-row {
