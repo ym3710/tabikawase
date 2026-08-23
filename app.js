@@ -43,6 +43,7 @@ const el = {
   statDiff: document.getElementById("stat-diff"),
   chartStatus: document.getElementById("chart-status"),
   canvas: document.getElementById("rate-chart"),
+  staleNote: document.getElementById("stale-note"),
 };
 
 let state = {
@@ -98,6 +99,7 @@ async function loadCurrency(code) {
   } catch (err) {
     el.rateLine.textContent = "レートの取得に失敗しました。時間をおいて再読み込みしてください。";
     el.chartStatus.textContent = "グラフを表示できませんでした。";
+    el.staleNote.hidden = true;
     setVerdict(null, null, "判定できません");
     console.error(err);
   }
@@ -118,6 +120,8 @@ function renderConversion() {
   const jpy = amount * state.latestRate;
   el.jpyAmount.textContent = Math.round(jpy).toLocaleString("ja-JP");
   el.rateLine.textContent = `1 ${state.currency} = ${state.latestRate.toFixed(3)} 円（${state.latestDate} 時点 / ECB参考レート）`;
+
+  el.staleNote.hidden = state.latestDate === formatDate(new Date());
 }
 
 function starsHTML(count) {

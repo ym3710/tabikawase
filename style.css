@@ -231,6 +231,19 @@ input#amount-input:focus {
   opacity: 0.65;
 }
 
+.stale-note {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  background: var(--caution-bg);
+  color: var(--caution);
+  font-size: 0.85rem;
+}
+
+.stale-note[hidden] {
+  display: none;
+}
+
 /* timing */
 
 .verdict {
