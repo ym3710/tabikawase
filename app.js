@@ -12,21 +12,21 @@ const TIERS = [
 ];
 
 const CURRENCIES = [
-  { code: "USD", label: "米ドル (アメリカ)" },
-  { code: "EUR", label: "ユーロ (欧州)" },
-  { code: "GBP", label: "英ポンド (イギリス)" },
-  { code: "AUD", label: "豪ドル (オーストラリア)" },
-  { code: "CAD", label: "加ドル (カナダ)" },
-  { code: "CHF", label: "スイスフラン" },
-  { code: "NZD", label: "NZドル (ニュージーランド)" },
-  { code: "KRW", label: "韓国ウォン" },
-  { code: "HKD", label: "香港ドル" },
-  { code: "SGD", label: "シンガポールドル" },
-  { code: "THB", label: "タイバーツ" },
-  { code: "MYR", label: "マレーシアリンギット" },
-  { code: "PHP", label: "フィリピンペソ" },
-  { code: "IDR", label: "インドネシアルピア" },
-  { code: "CNY", label: "中国人民元" },
+  { code: "USD", flag: "🇺🇸", label: "米ドル (アメリカ)" },
+  { code: "EUR", flag: "🇪🇺", label: "ユーロ (欧州)" },
+  { code: "GBP", flag: "🇬🇧", label: "英ポンド (イギリス)" },
+  { code: "AUD", flag: "🇦🇺", label: "豪ドル (オーストラリア)" },
+  { code: "CAD", flag: "🇨🇦", label: "加ドル (カナダ)" },
+  { code: "CHF", flag: "🇨🇭", label: "スイスフラン" },
+  { code: "NZD", flag: "🇳🇿", label: "NZドル (ニュージーランド)" },
+  { code: "KRW", flag: "🇰🇷", label: "韓国ウォン" },
+  { code: "HKD", flag: "🇭🇰", label: "香港ドル" },
+  { code: "SGD", flag: "🇸🇬", label: "シンガポールドル" },
+  { code: "THB", flag: "🇹🇭", label: "タイバーツ" },
+  { code: "MYR", flag: "🇲🇾", label: "マレーシアリンギット" },
+  { code: "PHP", flag: "🇵🇭", label: "フィリピンペソ" },
+  { code: "IDR", flag: "🇮🇩", label: "インドネシアルピア" },
+  { code: "CNY", flag: "🇨🇳", label: "中国人民元" },
 ];
 
 const el = {
@@ -55,7 +55,7 @@ let state = {
 
 function populateCurrencySelect() {
   el.currencySelect.innerHTML = CURRENCIES.map(
-    (c) => `<option value="${c.code}">${c.code} — ${c.label}</option>`
+    (c) => `<option value="${c.code}">${c.flag} ${c.code} — ${c.label}</option>`
   ).join("");
   el.currencySelect.value = state.currency;
 }
@@ -206,6 +206,18 @@ function renderChart() {
     ctx.fillText(v.toFixed(2), 4, y);
   });
 
+  // gradient area fill under the rate line
+  const fillGradient = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+  fillGradient.addColorStop(0, `color-mix(in srgb, ${accentColor} 35%, transparent)`);
+  fillGradient.addColorStop(1, `color-mix(in srgb, ${accentColor} 0%, transparent)`);
+  ctx.beginPath();
+  ctx.moveTo(xAt(0), H - pad.bottom);
+  state.history.forEach((h, i) => ctx.lineTo(xAt(i), yAt(h.rate)));
+  ctx.lineTo(xAt(state.history.length - 1), H - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = fillGradient;
+  ctx.fill();
+
   // average line (dashed, accent)
   ctx.save();
   ctx.setLineDash([4, 4]);
@@ -219,7 +231,8 @@ function renderChart() {
   // rate line
   ctx.beginPath();
   ctx.strokeStyle = inkColor;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.25;
+  ctx.lineJoin = "round";
   state.history.forEach((h, i) => {
     const x = xAt(i);
     const y = yAt(h.rate);
