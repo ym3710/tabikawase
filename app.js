@@ -206,18 +206,6 @@ function renderChart() {
     ctx.fillText(v.toFixed(2), 4, y);
   });
 
-  // gradient area fill under the rate line
-  const fillGradient = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
-  fillGradient.addColorStop(0, `color-mix(in srgb, ${accentColor} 35%, transparent)`);
-  fillGradient.addColorStop(1, `color-mix(in srgb, ${accentColor} 0%, transparent)`);
-  ctx.beginPath();
-  ctx.moveTo(xAt(0), H - pad.bottom);
-  state.history.forEach((h, i) => ctx.lineTo(xAt(i), yAt(h.rate)));
-  ctx.lineTo(xAt(state.history.length - 1), H - pad.bottom);
-  ctx.closePath();
-  ctx.fillStyle = fillGradient;
-  ctx.fill();
-
   // average line (dashed, accent)
   ctx.save();
   ctx.setLineDash([4, 4]);
@@ -231,8 +219,7 @@ function renderChart() {
   // rate line
   ctx.beginPath();
   ctx.strokeStyle = inkColor;
-  ctx.lineWidth = 2.25;
-  ctx.lineJoin = "round";
+  ctx.lineWidth = 2;
   state.history.forEach((h, i) => {
     const x = xAt(i);
     const y = yAt(h.rate);
