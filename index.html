@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>旅為替ナビ | 海外旅行の両替タイミングと現地価格の円換算</title>
+<meta name="description" content="現地で払う金額が今いくらの円になるか、そして今が両替のお得なタイミングかどうかを、ECB(欧州中央銀行)の公式レートでひと目で確認できるサイトです。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <p class="eyebrow">Travel Currency Board</p>
+    <h1>旅為替ナビ</h1>
+    <p class="tagline">現地の支払いが「今、何円か」を知り、両替のタイミングを見極める。</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="panel converter" aria-labelledby="converter-heading">
+    <h2 id="converter-heading" class="panel-title">現地価格 → 円換算</h2>
+
+    <div class="converter-controls">
+      <label class="field">
+        <span class="field-label">通貨</span>
+        <select id="currency-select"></select>
+      </label>
+      <label class="field field-amount">
+        <span class="field-label">現地での支払額</span>
+        <input type="text" inputmode="decimal" id="amount-input" value="100" autocomplete="off">
+      </label>
+    </div>
+
+    <div class="board" id="result-board">
+      <div class="board-row">
+        <span class="board-label">円換算</span>
+        <span class="board-value"><span id="jpy-amount">----</span><span class="board-unit">円</span></span>
+      </div>
+      <div class="board-sub">
+        <span id="rate-line">レート取得中…</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel timing" aria-labelledby="timing-heading">
+    <h2 id="timing-heading" class="panel-title">両替タイミングの目安</h2>
+
+    <div class="timing-body">
+      <div class="verdict" id="verdict-badge">
+        <span class="verdict-dot"></span>
+        <span class="verdict-text" id="verdict-text">判定中…</span>
+      </div>
+      <p class="timing-note" id="timing-note">直近90日間の平均レートと比較しています。</p>
+
+      <dl class="stat-grid">
+        <div class="stat">
+          <dt>現在のレート</dt>
+          <dd id="stat-current">–</dd>
+        </div>
+        <div class="stat">
+          <dt>90日平均</dt>
+          <dd id="stat-average">–</dd>
+        </div>
+        <div class="stat">
+          <dt>平均との差</dt>
+          <dd id="stat-diff">–</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="panel chart-panel" aria-labelledby="chart-heading">
+    <h2 id="chart-heading" class="panel-title">直近90日の推移</h2>
+    <p class="chart-caption">グラフが下にあるほど、その通貨は円で見て「安く」買えていた時期です。</p>
+    <div class="chart-wrap">
+      <canvas id="rate-chart" width="800" height="320" role="img" aria-label="為替レートの90日間推移グラフ"></canvas>
+    </div>
+    <p class="chart-status" id="chart-status"></p>
+  </section>
+
+  <section class="panel about">
+    <h2 class="panel-title">この数字の読み方</h2>
+    <ul class="about-list">
+      <li><strong>円換算</strong>は「現地での支払額 × 今日のレート」の概算です。実際にはカード会社や両替所の手数料が別途かかります。</li>
+      <li><strong>両替タイミング</strong>は、過去90日の平均レートより今のレートが円高寄り(少ない円で両替できる)なら「買い時」寄り、円安寄りなら「割高」寄りと表示します。将来のレートを予測するものではありません。</li>
+      <li>レートは<strong>欧州中央銀行(ECB)</strong>が公表する参考レートで、平日1日1回更新されます。リアルタイム(秒単位)の相場ではありません。</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>データ提供: <a href="https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html" target="_blank" rel="noopener">欧州中央銀行(ECB) 外国為替参考レート</a>（<a href="https://frankfurter.dev/" target="_blank" rel="noopener">Frankfurter API</a> 経由）</p>
+    <p class="disclaimer">本サイトの情報は目安であり、実際の両替・決済レートを保証するものではありません。実際の取引は各金融機関の提示レートをご確認ください。</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
