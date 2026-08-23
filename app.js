@@ -1,6 +1,15 @@
 const API_BASE = "https://api.frankfurter.dev/v1";
 const HISTORY_DAYS = 90;
-const DIFF_THRESHOLD_PCT = 1.5; // this much away from the 90-day average counts as a clear signal
+
+// 5-tier rating based on where today's rate ranks among the last 90 days
+// (percentile = share of days that were MORE expensive than today, i.e. how "cheap" today is)
+const TIERS = [
+  { min: 80, stars: 5, key: "tier-5", label: "絶好の両替タイミング" },
+  { min: 60, stars: 4, key: "tier-4", label: "お得な水準" },
+  { min: 40, stars: 3, key: "tier-3", label: "平均的な水準" },
+  { min: 20, stars: 2, key: "tier-2", label: "やや割高な水準" },
+  { min: 0, stars: 1, key: "tier-1", label: "割高な水準" },
+];
 
 const CURRENCIES = [
   { code: "USD", label: "米ドル (アメリカ)" },
@@ -26,6 +35,7 @@ const el = {
   jpyAmount: document.getElementById("jpy-amount"),
   rateLine: document.getElementById("rate-line"),
   verdictBadge: document.getElementById("verdict-badge"),
+  verdictStars: document.getElementById("verdict-stars"),
   verdictText: document.getElementById("verdict-text"),
   timingNote: document.getElementById("timing-note"),
   statCurrent: document.getElementById("stat-current"),
@@ -66,7 +76,7 @@ async function loadCurrency(code) {
   state.currency = code;
   el.rateLine.textContent = "レート取得中…";
   el.chartStatus.textContent = "";
-  setVerdict("loading", "判定中…");
+  setVerdict(null, null, "判定中…");
 
   const today = new Date();
   const start = new Date(today);
@@ -88,7 +98,7 @@ async function loadCurrency(code) {
   } catch (err) {
     el.rateLine.textContent = "レートの取得に失敗しました。時間をおいて再読み込みしてください。";
     el.chartStatus.textContent = "グラフを表示できませんでした。";
-    setVerdict("neutral", "判定できません");
+    setVerdict(null, null, "判定できません");
     console.error(err);
   }
 }
@@ -110,10 +120,14 @@ function renderConversion() {
   el.rateLine.textContent = `1 ${state.currency} = ${state.latestRate.toFixed(3)} 円（${state.latestDate} 時点 / ECB参考レート）`;
 }
 
-function setVerdict(kind, text) {
-  el.verdictBadge.classList.remove("is-good", "is-bad");
-  if (kind === "good") el.verdictBadge.classList.add("is-good");
-  if (kind === "bad") el.verdictBadge.classList.add("is-bad");
+function starsHTML(count) {
+  return "★".repeat(count) + "☆".repeat(5 - count);
+}
+
+function setVerdict(tierKey, stars, text) {
+  el.verdictBadge.classList.remove("is-tier-1", "is-tier-2", "is-tier-3", "is-tier-4", "is-tier-5");
+  if (tierKey) el.verdictBadge.classList.add(`is-${tierKey}`);
+  el.verdictStars.textContent = stars === null ? "" : starsHTML(stars);
   el.verdictText.textContent = text;
 }
 
@@ -128,16 +142,15 @@ function renderTiming() {
   el.statAverage.textContent = `${avg.toFixed(2)} 円`;
   el.statDiff.textContent = `${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)} %`;
 
-  if (diffPct <= -DIFF_THRESHOLD_PCT) {
-    setVerdict("good", "円高寄り・両替の買い時");
-    el.timingNote.textContent = `今の ${state.currency} は直近90日平均より円換算で${Math.abs(diffPct).toFixed(1)}%安く両替できています。`;
-  } else if (diffPct >= DIFF_THRESHOLD_PCT) {
-    setVerdict("bad", "円安寄り・やや割高");
-    el.timingNote.textContent = `今の ${state.currency} は直近90日平均より円換算で${diffPct.toFixed(1)}%割高です。急がないなら様子見も一案です。`;
-  } else {
-    setVerdict("neutral", "平均的な水準");
-    el.timingNote.textContent = "直近90日平均とほぼ同じ水準です。突出したお得感・割高感はありません。";
-  }
+  // cheapness percentile: share of the last 90 days that were MORE expensive than today
+  const moreExpensiveDays = rates.filter((r) => r > state.latestRate).length;
+  const cheapPercentile = (moreExpensiveDays / rates.length) * 100;
+
+  const tier = TIERS.find((t) => cheapPercentile >= t.min);
+  setVerdict(tier.key, tier.stars, tier.label);
+  el.timingNote.textContent =
+    `直近90日のうち${Math.round(cheapPercentile)}%の日より、今日の${state.currency}は円換算で安く両替できます` +
+    `（90日平均との差: ${diffPct >= 0 ? "+" : ""}${diffPct.toFixed(1)}%）。`;
 }
 
 function renderChart() {

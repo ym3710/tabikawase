@@ -6,12 +6,16 @@
   --border: #dcd8cd;
   --accent: #b9812f;
   --accent-ink: #6d4c1a;
+  --great: #1f5c4c;
+  --great-bg: #d9ece3;
   --good: #2f6f5e;
   --good-bg: #e4efe9;
-  --bad: #a8442f;
-  --bad-bg: #f3e5e0;
   --neutral: #6b6456;
   --neutral-bg: #eae7dc;
+  --caution: #b7752f;
+  --caution-bg: #f5e9d8;
+  --bad: #a8442f;
+  --bad-bg: #f3e5e0;
   --board-bg: #16233a;
   --board-digit: #f0c05a;
   --board-line: rgba(240, 192, 90, 0.18);
@@ -29,12 +33,16 @@
     --border: #2c3340;
     --accent: #d9a355;
     --accent-ink: #f2cf94;
+    --great: #63b89a;
+    --great-bg: #16281f;
     --good: #7fc9ae;
     --good-bg: #1c332c;
-    --bad: #e2897a;
-    --bad-bg: #3a231f;
     --neutral: #c9c4b4;
     --neutral-bg: #2a2c26;
+    --caution: #e0ab5f;
+    --caution-bg: #362a18;
+    --bad: #e2897a;
+    --bad-bg: #3a231f;
     --board-bg: #0b1220;
     --board-digit: #ffcf6e;
     --board-line: rgba(255, 207, 110, 0.16);
@@ -49,12 +57,16 @@
   --border: #2c3340;
   --accent: #d9a355;
   --accent-ink: #f2cf94;
+  --great: #63b89a;
+  --great-bg: #16281f;
   --good: #7fc9ae;
   --good-bg: #1c332c;
-  --bad: #e2897a;
-  --bad-bg: #3a231f;
   --neutral: #c9c4b4;
   --neutral-bg: #2a2c26;
+  --caution: #e0ab5f;
+  --caution-bg: #362a18;
+  --bad: #e2897a;
+  --bad-bg: #3a231f;
   --board-bg: #0b1220;
   --board-digit: #ffcf6e;
   --board-line: rgba(255, 207, 110, 0.16);
@@ -224,7 +236,7 @@ input#amount-input:focus {
 .verdict {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 8px 14px;
   border-radius: 999px;
   background: var(--neutral-bg);
@@ -234,16 +246,17 @@ input#amount-input:focus {
   margin-bottom: 10px;
 }
 
-.verdict-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: currentColor;
-  flex-shrink: 0;
+.verdict-stars {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
 }
 
-.verdict.is-good { background: var(--good-bg); color: var(--good); }
-.verdict.is-bad { background: var(--bad-bg); color: var(--bad); }
+.verdict.is-tier-5 { background: var(--great-bg); color: var(--great); }
+.verdict.is-tier-4 { background: var(--good-bg); color: var(--good); }
+.verdict.is-tier-3 { background: var(--neutral-bg); color: var(--neutral); }
+.verdict.is-tier-2 { background: var(--caution-bg); color: var(--caution); }
+.verdict.is-tier-1 { background: var(--bad-bg); color: var(--bad); }
 
 .timing-note {
   color: var(--muted);
